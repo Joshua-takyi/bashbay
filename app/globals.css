@@ -3,3 +3,70 @@
 /* Note: You may need to change the path to fit your project structure */
 @source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 @custom-variant dark (&:is(.dark *));
+
+.h1 {
+  @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium;
+}
+
+.h2 {
+  @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold;
+}
+
+.h3 {
+  @apply text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium;
+}
+
+.h4 {
+  @apply text-base sm:text-lg md:text-xl lg:text-2xl font-normal;
+}
+
+.h5 {
+  @apply text-sm sm:text-base md:text-lg lg:text-xl font-normal;
+}
+
+.h6 {
+  @apply text-xs sm:text-sm md:text-base lg:text-lg font-normal;
+}
+
+.p {
+  @apply text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed;
+}
+
+.small {
+  @apply text-xs sm:text-sm md:text-base leading-tight;
+}
+
+::placeholder {
+  @apply text-xs;
+}
+/* You can add more global styles here */
+body {
+  box-sizing: border-box;
+}
+
+/* Fix autocomplete text color issues */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: hsl(var(--heroui-foreground)) !important;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+input:-webkit-autofill::first-line {
+  color: hsl(var(--heroui-foreground)) !important;
+}
+
+/* Ensure consistent input text color */
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  color: hsl(var(--heroui-foreground)) !important;
+}
+
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="text"]::placeholder {
+  color: hsl(var(--heroui-foreground-500)) !important;
+}
