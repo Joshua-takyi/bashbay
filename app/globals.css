@@ -9,11 +9,11 @@
 }
 
 .h2 {
-  @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold;
+  @apply text-xl  md:text-[1.5rem];
 }
 
 .h3 {
-  @apply text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium;
+  @apply text-lg sm:text-xl md:text-[1.7rem] font-medium;
 }
 
 .h4 {
@@ -33,7 +33,7 @@
 }
 
 .small {
-  @apply text-xs sm:text-sm md:text-base leading-tight;
+  @apply text-xs  leading-tight;
 }
 
 ::placeholder {
@@ -42,6 +42,32 @@
 /* You can add more global styles here */
 body {
   box-sizing: border-box;
+}
+
+/* color for the project */
+
+.background-color {
+  @apply bg-[#F5F5F5];
+}
+
+.accent-color {
+  @apply text-[#FF6600];
+}
+
+.primary-color {
+  @apply text-[#000B58];
+}
+
+.second-color {
+  @apply text-[#00A99D];
+}
+
+.text-color {
+  @apply text-[#333333];
+}
+
+.lato-font {
+  font-family: var(--font-lato);
 }
 
 /* Fix autocomplete text color issues */

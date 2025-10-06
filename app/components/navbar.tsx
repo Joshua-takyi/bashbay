@@ -4,6 +4,7 @@ import Link from "next/link";
 import Wrapper from "./wrapper";
 import { useAuthSession } from "@/hooks/useAuthSession";
 import { useEffect } from "react";
+import BodyWrapper from "./body-Wrapper";
 
 export default function Navbar() {
   const { isLoggedIn, isLoading } = useAuthSession();
@@ -39,8 +40,8 @@ export default function Navbar() {
     if (isLoggedIn) {
       navigationLinks.push({
         id: 3,
-        title: "Dashboard",
-        href: "/dashboard",
+        title: "Profile",
+        href: "/profile",
       });
     } else {
       navigationLinks.push(
@@ -58,8 +59,8 @@ export default function Navbar() {
     }
   }
   return (
-    <header className="p-4">
-      <Wrapper className="flex items-center justify-between">
+    <header className="  ">
+      <BodyWrapper className="flex items-center justify-between">
         <div>
           <Link href="/">
             <h1 className="text-2xl font-bold">Bashbay</h1>
@@ -72,7 +73,7 @@ export default function Navbar() {
             </Link>
           ))}
         </nav>
-      </Wrapper>
+      </BodyWrapper>
     </header>
   );
 }

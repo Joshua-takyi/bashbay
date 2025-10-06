@@ -2,6 +2,7 @@
 
 import { useSession } from "./useSession";
 import { useAuth } from "./useAuth";
+import { join } from "path";
 
 export const useAuthSession = () => {
   const { data: session, isLoading, error, refetch } = useSession();
@@ -37,6 +38,11 @@ export const useAuthSession = () => {
     userId: user?.user_id || null,
     email: user?.email || null,
     username: user?.username || null,
+    phone: user?.phone || null,
+    avatar_url: user?.avatar_url || null,
+    is_verified: user?.is_verified || null,
+    fullname: user ? `${user.fullname}` : null,
+    joinedAt: user?.created_at || null,
 
     refetch,
     logout,
