@@ -1,16 +1,15 @@
-import BodyWrapper from "@/app/components/body-Wrapper";
-import { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Edit Profile - Bashbay",
-  description: "Edit your profile information on Bashbay.",
-};
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 export default function EditProfilePage() {
-  return (
-    <main>
-      <BodyWrapper>
-        <h1 className="small">Edit Profile Page</h1>
-      </BodyWrapper>
-    </main>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect to profile page since we now use modal for editing
+    router.replace("/profile");
+  }, [router]);
+
+  return null;
 }

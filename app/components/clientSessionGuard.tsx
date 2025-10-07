@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useSession } from '@/hooks/useSession';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useSession } from "@/hooks/useSession";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface ClientSessionGuardProps {
   children: React.ReactNode;
@@ -15,9 +15,9 @@ export default function ClientSessionGuard({
   const router = useRouter();
 
   useEffect(() => {
-    // If we have a user session, redirect to dashboard
+    // If we have a user session, redirect to home page
     if (session?.user && !isLoading) {
-      router.push('/dashboard');
+      router.push("/");
     }
   }, [session, isLoading, router]);
 

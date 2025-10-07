@@ -8,14 +8,11 @@ export interface SessionUser {
   user_id?: string;
   role?: string;
   email?: string;
+  phone_number: string;
   fullname?: string;
-  phone?: string;
   is_verified?: boolean;
-  avatar_url?: string;
   created_at?: string;
-  updated_at?: string;
   is_admin?: boolean;
-  username?: string;
   auth_role?: string;
   status?: string;
 }

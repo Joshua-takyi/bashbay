@@ -59,7 +59,7 @@ export default function Navbar() {
     }
   }
   return (
-    <header className="  ">
+    <header>
       <BodyWrapper className="flex items-center justify-between">
         <div>
           <Link href="/">

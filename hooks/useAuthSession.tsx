@@ -37,12 +37,8 @@ export const useAuthSession = () => {
 
     userId: user?.user_id || null,
     email: user?.email || null,
-    username: user?.username || null,
-    phone: user?.phone || null,
-    avatar_url: user?.avatar_url || null,
+    phone_number: user?.phone_number || null,
     is_verified: user?.is_verified || null,
-    fullname: user ? `${user.fullname}` : null,
-    joinedAt: user?.created_at || null,
 
     refetch,
     logout,

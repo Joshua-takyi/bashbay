@@ -70,7 +70,6 @@ export const useVenues = () => {
         if (!response.data.success) {
           throw new Error("Failed to fetch venues");
         }
-
         // console.log(response.data);
         return response.data.data || [];
       },

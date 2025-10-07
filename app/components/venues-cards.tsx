@@ -69,52 +69,85 @@ export default function VenueCards({ data, loading = false }: VenueCardsProps) {
 
   return (
     <Link
-      className="relative rounded-md border-[0.5px] border-gray-300"
+      className="group relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 transition-all duration-300 hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-700"
       href={`/venues/${data.id}`}
     >
-      <div className="relative h-[15rem] rounded-lg overflow-hidden w-full">
-        <Image src={imageUrl} alt={data.name} fill className="object-cover" />
-      </div>
-      <span
-        className="absolute top-2 right-2 cursor-pointer z-10 bg-white/60 dark:bg-black/50 backdrop-blur-sm rounded-full p-2"
-        onClick={handleFillHeart}
-      >
-        <motion.div
-          key={isFilled ? "filled" : "empty"}
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          {isFilled ? (
-            <HeartFilledIcon className="w-6 h-6 text-red-500" />
-          ) : (
-            <HeartIcon className="w-6 h-6 text-white drop-shadow-lg" />
-          )}
-        </motion.div>
-      </span>
-      <div className="flex justify-between items-center my-3 px-2">
-        <div className="flex flex-col">
-          <p className="font-medium text-[1rem]">{data.name}</p>
-          <p className="small my-1 ">{data.location}</p>
-          <div>{/* <Person */}</div>
+      {/* Image Container */}
+      <div className="relative h-[200px] w-full overflow-hidden">
+        <Image
+          src={imageUrl}
+          alt={data.name}
+          fill
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+
+        {/* Premier Venue Badge */}
+        <div className="absolute top-2 left-2 bg-white px-2.5 py-1 rounded-md shadow-sm">
+          <span className="text-xs font-semibold text-gray-800">
+            Premier venue
+          </span>
         </div>
-        <span>
-          <StarIcon className="inline-block w-4 h-4 text-yellow-500 " />
-          {4.5}
+
+        {/* Heart Icon */}
+        <span
+          className="absolute top-2 right-2 cursor-pointer z-10"
+          onClick={handleFillHeart}
+        >
+          <motion.div
+            key={isFilled ? "filled" : "empty"}
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            {isFilled ? (
+              <HeartFilledIcon className="w-5 h-5 text-red-500 drop-shadow-lg" />
+            ) : (
+              <HeartIcon className="w-5 h-5 text-white stroke-white stroke-2 drop-shadow-lg" />
+            )}
+          </motion.div>
         </span>
       </div>
-      <div className="flex items-center gap-1 mt-1 px-2 ">
-        <Image
-          src={people}
-          alt="people icon"
-          width={16}
-          height={16}
-          className="inline-block w-4 h-4 mr-1"
-        />
-        <span className="text-tiny">{data.venue_type}</span>
-        <span className="text-cyan-500">&#8226; ${data.price_per_hour}/hr</span>
+
+      {/* Content Container */}
+      <div className="pt-2.5 pb-2 px-2">
+        {/* Venue Type */}
+        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-0.5">
+          {data.venue_type}
+        </p>
+
+        {/* Location & Name */}
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+          {data.name}
+        </p>
+
+        {/* Bottom Row - Rating and Price */}
+        <div className="flex items-center justify-between">
+          {/* Rating Badge */}
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-1.5 py-0.5 rounded">
+              <StarIcon className="w-3 h-3" />
+              <span className="text-xs font-semibold">10.0</span>
+            </div>
+            <span className="text-xs text-gray-600 dark:text-gray-400">
+              44 reviews
+            </span>
+          </div>
+
+          {/* Price */}
+          <div className="text-right">
+            <p className="text-sm">
+              <span className="font-semibold text-gray-900 dark:text-gray-100">
+                ${data.price_per_hour}
+              </span>
+              <span className="text-gray-600 dark:text-gray-400 text-xs">
+                {" "}
+                /hr
+              </span>
+            </p>
+          </div>
+        </div>
       </div>
     </Link>
   );

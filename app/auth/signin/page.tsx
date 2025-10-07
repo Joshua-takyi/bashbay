@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 export default async function LoginPage() {
   const data = await Session();
   if (data) {
-    redirect('/dashboard');
+    redirect('/');
   }
   return (
     <ClientSessionGuard>
