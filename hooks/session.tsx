@@ -1,29 +1,31 @@
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers";
 type SessionResponse = {
   auth_role?: string;
   email?: string;
   is_admin?: boolean;
   role?: string;
+  avatar_url?: string;
+  created_at?: string;
   status?: string;
   user_id?: string;
   username?: string;
 };
 const apiurl =
-  process.env.NODE_ENV === 'production'
+  process.env.NODE_ENV === "production"
     ? process.env.NEXT_PUBLIC_PROD_URL
-    : process.env.NEXT_PUBLIC_DEV_URL || 'http://localhost:8080/api/v1';
+    : process.env.NEXT_PUBLIC_DEV_URL || "http://localhost:8080/api/v1";
 
 export async function Session(): Promise<SessionResponse | null> {
   if (!apiurl) {
-    console.error('API URL is not defined');
+    console.error("API URL is not defined");
     return null;
   }
 
   const cookieStore = await cookies();
 
   // Get individual cookies instead of toString() which might not work reliably in production
-  const authToken = cookieStore.get('access_token')?.value;
-  const refreshToken = cookieStore.get('refresh_token')?.value;
+  const authToken = cookieStore.get("access_token")?.value;
+  const refreshToken = cookieStore.get("refresh_token")?.value;
 
   // If no auth token, user is not logged in
   if (!authToken) {
@@ -36,18 +38,18 @@ export async function Session(): Promise<SessionResponse | null> {
     refreshToken ? `refresh_token=${refreshToken}` : null,
   ]
     .filter(Boolean)
-    .join('; ');
+    .join("; ");
 
   try {
     const response = await fetch(`${apiurl}/profile`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         // Always include cookies if we have them
         ...(cookieString ? { Cookie: cookieString } : {}),
       },
-      cache: 'no-store',
-      credentials: 'include',
+      cache: "no-store",
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -69,7 +71,7 @@ export async function Session(): Promise<SessionResponse | null> {
       status: data.status,
     };
   } catch (error) {
-    console.error('Error fetching user session:', error);
+    console.error("Error fetching user session:", error);
     return null;
   }
 }

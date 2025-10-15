@@ -6,6 +6,7 @@ import { AppProvider } from "@/context/appcontext";
 import { Providers } from "./provider";
 import { QueryProvider } from "./queryProvider";
 import localfonts from "next/font/local";
+import { Toaster } from "@/components/ui/sonner";
 // const geistSans = Geist({
 //   variable: '--font-geist-sans',
 //   subsets: ['latin'],
@@ -85,7 +86,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={` ${centralNo2.className} antialiased`}>
+      <body
+        className={` ${centralNo2.className} ${inter.variable} antialiased`}
+      >
+        <Toaster position="top-right" richColors />
         <AppProvider>
           <Providers>
             <QueryProvider>{children}</QueryProvider>

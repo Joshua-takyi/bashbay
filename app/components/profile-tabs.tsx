@@ -1,6 +1,6 @@
 "use client";
 
-import { Tabs, Tab, Divider } from "@heroui/react";
+import { Tabs, Tab, Skeleton } from "@heroui/react";
 import EmptyState from "./empty-state";
 import { useAuthSession } from "@/hooks/useAuthSession";
 
@@ -21,7 +21,7 @@ export default function ProfileTabs({
   content,
   isEmpty,
 }: ProfileTabsProps) {
-  const { user } = useAuthSession();
+  const { user, isLoading } = useAuthSession();
 
   const getHeaderText = () => {
     const userName = user?.fullname || "You";
@@ -42,13 +42,22 @@ export default function ProfileTabs({
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="w-full space-y-4">
+        <Skeleton className="h-8 w-48 rounded-lg" />
+        <Skeleton className="h-64 w-full rounded-lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       <p className="h4 font-semibold mb-4">{getHeaderText()}</p>
       <Tabs
         aria-label="Profile sections"
         variant="underlined"
-        color="primary"
+        color="default"
         classNames={{
           base: "p-0",
           tab: "px-2 py-1 sm:px-4 sm:py-2",
@@ -75,7 +84,6 @@ export default function ProfileTabs({
           )}
         </Tab>
       </Tabs>
-      <Divider className="my-8" />
     </div>
   );
 }

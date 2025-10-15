@@ -84,7 +84,7 @@ export const useAuth = () => {
         const { id, ...updateData } = data;
         const response = await api.patch(`/users/${id}`, updateData);
         // debugging
-        console.log(response.data);
+        // console.log(response.data);
         return response.data;
       },
       onSuccess: () => {
@@ -133,7 +133,7 @@ export const useAuth = () => {
         if (!res.data) {
           throw new Error("failed to get the user by their id ");
         }
-        console.log("user data", res.data);
+        // console.log("user data", res.data);
         return res.data;
       },
       enabled: enabled && !!id, // Only run query if enabled and id exists
@@ -150,6 +150,41 @@ export const useAuth = () => {
     });
   };
 
-  return { useCreateUser, useLogin, useLogout, useUpdateUser, getUserbyId };
+  const uploadAvatar = () => {
+    return useMutation({
+      mutationFn: async (data: { id: string; avatar: File }) => {
+        // Create form data
+        const formData = new FormData();
+        formData.append("avatar", data.avatar);
+
+        const response = await api.patch(`/users/avatar/${data.id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        return response.data;
+      },
+      onSuccess: () => {
+        // Invalidate user query to update user data
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+      },
+      onError: (error: AxiosError) => {
+        if (isAxiosError(error)) {
+          const message =
+            (error.response?.data as { message?: string })?.message ||
+            "An error occurred";
+          throw new Error(message);
+        }
+      },
+    });
+  };
+  return {
+    useCreateUser,
+    useLogin,
+    useLogout,
+    useUpdateUser,
+    getUserbyId,
+    uploadAvatar,
+  };
 };
 1;

@@ -7,11 +7,7 @@ export default function Wrapper({
 }) {
   return (
     <main className="">
-      <div
-        className={`${className} max-w-[112rem] w-full mx-auto px-4 sm:px-6`}
-      >
-        {children}
-      </div>
+      <div className={`${className} w-full mx-auto px-2 `}>{children}</div>
     </main>
   );
 }

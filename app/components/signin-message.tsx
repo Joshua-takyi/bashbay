@@ -1,4 +1,3 @@
-import { div } from "framer-motion/client";
 import BodyWrapper from "./body-Wrapper";
 
 export default function SignInMessage() {

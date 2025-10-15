@@ -6,6 +6,8 @@ export default function BodyWrapper({
   className?: string;
 }) {
   return (
-    <div className={`max-w-[80rem] mx-auto ${className} p-2`}>{children}</div>
+    <div className={`max-w-[70rem] mx-auto w-full ${className} p-2`}>
+      {children}
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@heroui/react";
 import { UploadIcon, Cross2Icon, CameraIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
@@ -37,6 +37,20 @@ export default function ImageUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const onImagesChangeRef = useRef(onImagesChange);
+
+  // Keep the callback ref up to date
+  useEffect(() => {
+    onImagesChangeRef.current = onImagesChange;
+  }, [onImagesChange]);
+
+  // Notify parent component whenever images change
+  useEffect(() => {
+    if (onImagesChangeRef.current) {
+      onImagesChangeRef.current(images.map((img) => img.file));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [images]);
 
   const validateFile = (file: File): string | null => {
     if (!acceptedFormats.includes(file.type)) {
@@ -85,12 +99,6 @@ export default function ImageUpload({
 
         setImages((prev) => {
           const updated = mode === "single" ? [newImage] : [...prev, newImage];
-
-          // Call the callback with the files
-          if (onImagesChange) {
-            onImagesChange(updated.map((img) => img.file));
-          }
-
           return updated;
         });
       };
@@ -134,10 +142,6 @@ export default function ImageUpload({
         onImagesRemove(index);
       }
 
-      if (onImagesChange) {
-        onImagesChange(updated.map((img) => img.file));
-      }
-
       return updated;
     });
 
@@ -151,9 +155,6 @@ export default function ImageUpload({
     setImages([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
-    }
-    if (onImagesChange) {
-      onImagesChange([]);
     }
   };
 

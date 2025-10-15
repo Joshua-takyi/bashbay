@@ -1,27 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import Wrapper from "./wrapper";
 import { useAuthSession } from "@/hooks/useAuthSession";
-import { useEffect } from "react";
 import BodyWrapper from "./body-Wrapper";
 
 export default function Navbar() {
   const { isLoggedIn, isLoading } = useAuthSession();
-  useEffect(() => {
-    const initailHeight = window.scrollY;
-    const handleScroll = () => {
-      if (window.scrollY > initailHeight) {
-        document.querySelector("header")?.classList.add("shadow-md");
-      } else {
-        document.querySelector("header")?.classList.remove("shadow-md");
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  // useEffect(() => {
+  //   const initailHeight = window.scrollY;
+  //   const handleScroll = () => {
+  //     if (window.scrollY > initailHeight) {
+  //       document.querySelector("header")?.classList.add("shadow-md");
+  //     } else {
+  //       document.querySelector("header")?.classList.remove("shadow-md");
+  //     }
+  //   };
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => {
+  //     window.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, []);
   const navigationLinks = [
     {
       id: 1,
@@ -59,7 +57,7 @@ export default function Navbar() {
     }
   }
   return (
-    <header>
+    <header className="">
       <BodyWrapper className="flex items-center justify-between">
         <div>
           <Link href="/">

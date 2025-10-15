@@ -10,15 +10,24 @@ import {
   ModalBody,
   useDisclosure,
   Divider,
+  Tabs,
 } from "@heroui/react";
 import { Pencil1Icon, CameraIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import EditProfileForm from "@/app/components/edit-profile-form";
 import ImageUpload from "@/app/components/image-upload";
 import { useAuth } from "@/hooks/useAuth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import VenueEventCreation from "@/app/components/venue-event-creation";
+import Link from "next/link";
 
-export default function ProfileSidebar() {
+interface ProfileSidebarProps {
+  userId?: string;
+}
+
+export default function ProfileSidebar({
+  userId: propUserId,
+}: ProfileSidebarProps) {
   const {
     isOpen: isImageOpen,
     onOpen: onImageOpen,
@@ -36,17 +45,50 @@ export default function ProfileSidebar() {
     onClose: onUploadClose,
   } = useDisclosure();
 
-  const { email, isLoading, is_verified, userId, isLoggedIn } =
-    useAuthSession();
-  const { getUserbyId } = useAuth();
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onClose: onCreateClose,
+  } = useDisclosure();
+
+  const {
+    email,
+    isLoading: sessionLoading,
+    is_verified,
+    userId: sessionUserId,
+    isLoggedIn,
+  } = useAuthSession();
+
+  // Use prop userId if provided, otherwise fall back to session userId
+  const userId = propUserId || sessionUserId;
+
+  const { getUserbyId, uploadAvatar } = useAuth();
   const { data: userData, isLoading: isUserLoading } = getUserbyId(
-    userId || ""
+    userId || "",
+    !!userId // Only fetch if userId exists
   );
 
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const { mutate: uploadAvatarMutate } = uploadAvatar();
 
-  if (isLoading || isUserLoading) {
-    return <Loader />;
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploadError, setUploadError] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Handle hydration to prevent mismatch
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // Show loader during initial load or when data is still loading
+  if (!isHydrated || sessionLoading || isUserLoading || !userData) {
+    return (
+      <aside className="w-full max-w-sm sticky top-12">
+        <div className="flex items-center justify-center h-64">
+          <Loader />
+        </div>
+      </aside>
+    );
   }
 
   const handleViewProfileImage = () => {
@@ -67,22 +109,40 @@ export default function ProfileSidebar() {
 
   const handleImagesChange = (files: File[]) => {
     setUploadedFiles(files);
+    setUploadError(""); // Clear any previous errors
   };
 
   const handleUploadSubmit = async () => {
     if (uploadedFiles.length === 0) return;
 
-    // TODO: Implement actual upload logic here
-    console.log("Uploading image:", uploadedFiles[0]);
+    setIsUploading(true);
+    setUploadError("");
 
-    // Close modal and reset after successful upload
-    onUploadClose();
-    setUploadedFiles([]);
+    if (userId) {
+      uploadAvatarMutate(
+        { id: userId, avatar: uploadedFiles[0] },
+        {
+          onSuccess: () => {
+            console.log("Avatar uploaded successfully");
+            onUploadClose();
+            setUploadedFiles([]);
+            setIsUploading(false);
+          },
+          onError: (error) => {
+            console.error("Failed to upload avatar:", error);
+            const errorMessage =
+              error instanceof Error ? error.message : "Failed to upload image";
+            setUploadError(errorMessage);
+            setIsUploading(false);
+          },
+        }
+      );
+    }
   };
 
   return (
-    <aside className="w-full max-w-sm sticky top-5">
-      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl overflow-hidden">
+    <aside className="w-full max-w-sm sticky top-12">
+      <div className="overflow-hidden">
         {/* Profile Header */}
         <div className="p-8 text-center">
           <div className="relative inline-block">
@@ -91,7 +151,7 @@ export default function ProfileSidebar() {
               onClick={handleViewProfileImage}
             >
               <Image
-                src="/images/heroImage.jpg"
+                src={userData?.avatar_url || "/images/heroImage.jpg"}
                 alt="Profile Image"
                 fill
                 className="object-cover"
@@ -132,6 +192,29 @@ export default function ProfileSidebar() {
                 />
               </svg>
               Verified
+            </div>
+          )}
+          {/* Edit Profile Button */}
+          {isLoggedIn && (
+            <div className="flex flex-col gap-2 mt-2">
+              <Link
+                href={"/create"}
+                // color="danger"
+                // radius="lg"
+                className="w-full bg-red-500/90 text-white font-medium px-2 py-2 text-sm rounded-lg"
+              >
+                + Add Listing
+              </Link>
+              <Divider className="bg-gray-100 dark:bg-zinc-800" />
+              <Button
+                variant="flat"
+                radius="lg"
+                startContent={<Pencil1Icon className="w-4 h-4" />}
+                className="w-full font-medium"
+                onPress={handleEditProfile}
+              >
+                Edit Profile
+              </Button>
             </div>
           )}
         </div>
@@ -194,7 +277,7 @@ export default function ProfileSidebar() {
           <Divider className="bg-gray-100 dark:bg-zinc-800" />
 
           {/* Stats Section */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             <div className="text-center space-y-1">
               <div className="text-2xl font-semibold text-gray-900 dark:text-white">
                 24
@@ -220,22 +303,6 @@ export default function ProfileSidebar() {
               </div>
             </div>
           </div>
-
-          {/* Edit Profile Button */}
-          {isLoggedIn && (
-            <>
-              <Divider className="bg-gray-100 dark:bg-zinc-800" />
-              <Button
-                variant="flat"
-                radius="lg"
-                startContent={<Pencil1Icon className="w-4 h-4" />}
-                className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 font-medium"
-                onClick={handleEditProfile}
-              >
-                Edit Profile
-              </Button>
-            </>
-          )}
         </div>
       </div>
 
@@ -245,11 +312,11 @@ export default function ProfileSidebar() {
         size="2xl"
         onClose={onUploadClose}
         placement="center"
-        backdrop="opaque"
-        classNames={{
-          base: "bg-white dark:bg-zinc-900",
-          backdrop: "bg-black/50",
-        }}
+        backdrop="blur"
+        // classNames={{
+        //   base: "bg-white dark:bg-zinc-900",
+        //   backdrop: "bg-black/50",
+        // }}
       >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1 px-6 pt-6 pb-4">
@@ -268,22 +335,31 @@ export default function ProfileSidebar() {
                 maxFileSize={3}
                 onImagesChange={handleImagesChange}
               />
+              {uploadError && (
+                <div className="px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-sm text-red-800 dark:text-red-400">
+                    {uploadError}
+                  </p>
+                </div>
+              )}
               <div className="flex gap-3 pt-2">
                 <Button
                   variant="bordered"
                   onPress={onUploadClose}
                   className="flex-1"
                   radius="lg"
+                  isDisabled={isUploading}
                 >
                   Cancel
                 </Button>
                 <Button
                   onPress={handleUploadSubmit}
                   isDisabled={uploadedFiles.length === 0}
+                  isLoading={isUploading}
                   className="flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900"
                   radius="lg"
                 >
-                  Upload Photo
+                  {isUploading ? "Uploading..." : "Upload Photo"}
                 </Button>
               </div>
             </div>
@@ -294,19 +370,19 @@ export default function ProfileSidebar() {
       {/* Profile Image Modal */}
       <Modal
         isOpen={isImageOpen}
-        size="3xl"
+        size="5xl"
         onClose={onImageClose}
         placement="center"
-        backdrop="opaque"
-        classNames={{
-          base: "bg-white dark:bg-zinc-900",
-          backdrop: "bg-black/80",
-        }}
+        backdrop="blur"
+        // classNames={{
+        //   base: "bg-white dark:bg-zinc-900",
+        //   backdrop: "bg-black/80",
+        // }}
       >
         <ModalContent>
           <ModalBody className="p-0">
             <Image
-              src="/images/heroImage.jpg"
+              src={userData?.avatar_url || "/images/heroImage.jpg"}
               alt="Profile Image"
               width={800}
               height={800}
@@ -319,14 +395,14 @@ export default function ProfileSidebar() {
       {/* Edit Profile Modal */}
       <Modal
         isOpen={isEditOpen}
-        size="3xl"
+        size="4xl"
         onClose={onEditClose}
         placement="center"
-        backdrop="opaque"
+        backdrop="blur"
         scrollBehavior="inside"
         classNames={{
           base: "max-h-[90vh] bg-white dark:bg-zinc-900",
-          backdrop: "bg-black/50",
+          // backdrop: "bg-black/50",
           body: "px-6 pb-6",
           wrapper: "items-center",
         }}
@@ -348,6 +424,36 @@ export default function ProfileSidebar() {
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      {/* creating of a venue or event */}
+      {/* <Modal
+        isOpen={isCreateOpen}
+        size="4xl"
+        onClose={onCreateClose}
+        placement="center"
+        backdrop="blur"
+        scrollBehavior="inside"
+        // classNames={{
+        //   base: "max-h-[90vh] bg-white dark:bg-zinc-900",
+        //   backdrop: "bg-black/50",
+        //   body: "px-6 pb-6",
+        //   wrapper: "items-center",
+        // }}
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1 px-6 pt-6 pb-4 border-b border-gray-200 dark:border-zinc-800">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Create New Listing
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-normal">
+              Start creating your new venue or event listing
+            </p>
+          </ModalHeader>
+          <ModalBody className="overflow-y-auto">
+            <VenueEventCreation />
+          </ModalBody>
+        </ModalContent>
+      </Modal> */}
     </aside>
   );
 }

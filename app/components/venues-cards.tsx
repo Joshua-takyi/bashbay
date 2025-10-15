@@ -9,32 +9,51 @@ import Link from "next/link";
 import { HeartIcon, HeartFilledIcon, StarIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import people from "../../public/icons/people-svgrepo-com.svg";
+import { formatCurrency } from "@/utilities/currency";
+import { useFavourite } from "@/hooks/useFavourite";
 
 export type VenueData = {
   id?: string;
   name: string;
-  venue_type: string;
+  vibe_headline?: string;
+  capacity?: number | null;
+  tags?: string[];
+  seating_capacity?: number | null;
+  standing_capacity?: number | null;
+  venue_type: string[];
+  ceiling_height_feet?: number | null;
+  load_in_access?: string;
+  alcohol_policy?: string;
+  external_catering_allowed?: boolean;
+  price_model?: string;
   rules: string[];
   accessibility: string[];
   min_booking_duration_hours: number;
   cancellation_policy: string;
   description: string;
+  slug?: string;
   location?: string;
   images: string[];
   coordinates?: {
     lat: number;
     lng: number;
   };
-  amenities: Record<string, boolean>;
-  price_per_hour: number;
-  availability: string[];
+  fixed_price_package_price?: number;
+  package_duration_hours?: number;
+  overtime_rate_per_hour?: number;
+  cleaning_fee?: number;
+  security_deposit?: number;
+  amenities: Record<string, any>;
+  setup_takedown_duration?: number;
+  included_items?: string[];
+  price_per_hour?: number;
+  availability: Record<string, string>;
   status?: string;
   created_at?: string;
   updated_at?: string;
 };
 
-type Reviews = {
+export type Reviews = {
   id: string;
   user_id: string;
   venue_id: string;
@@ -51,35 +70,110 @@ export type VenueCardsProps = {
 };
 
 export default function VenueCards({ data, loading = false }: VenueCardsProps) {
-  const [isFilled, setIsFilled] = useState(false);
-  const handleFillHeart = (e: React.MouseEvent) => {
+  const { addToFavourites, removeFromFavourites, isFavourited, isLoading } =
+    useFavourite();
+  const { mutate: addFav } = addToFavourites(data.id || "");
+  const { mutate: removeFav } = removeFromFavourites(data.id || "");
+
+  // Check if this venue is already favorited
+  const isFilled = isFavourited(data.id || "");
+  const [imageError, setImageError] = useState(false);
+
+  const handleToggleFavourite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsFilled(!isFilled);
+    if (!data.id) return;
+
+    if (isFilled) {
+      // Remove from favourites
+      removeFav(undefined, {
+        onSuccess: () => {
+          // addToast({ title: "Removed from favourites", color: "default" });
+        },
+        onError: (error) => {
+          console.error("Failed to remove from favourites:", error);
+          // addToast({
+          //   title: "Failed to remove from favourites",
+          //   color: "danger",
+          // });
+        },
+      });
+    } else {
+      // Add to favourites
+      addFav("venue", {
+        onSuccess: () => {
+          // addToast({ title: "Added to favourites", color: "success" });
+        },
+        onError: (error) => {
+          console.error("Failed to add to favourites:", error);
+          // addToast({ title: "Failed to add to favourites", color: "danger" });
+        },
+      });
+    }
   };
 
   if (loading) {
     return <SkeletonCard />;
   }
 
-  const imageUrl =
-    data.images && data.images.length > 0
-      ? data.images[0]
-      : "https://via.placeholder.com/400x300";
+  // Better image validation with fallback
+  const getImageUrl = () => {
+    if (!data.images || !Array.isArray(data.images)) {
+      return "https://via.placeholder.com/400x300?text=No+Image";
+    }
+
+    const validImage = data.images.find((img) => {
+      if (!img || typeof img !== "string") return false;
+      const trimmed = img.trim();
+      return (
+        trimmed !== "" &&
+        (trimmed.startsWith("http://") ||
+          trimmed.startsWith("https://") ||
+          trimmed.startsWith("/"))
+      );
+    });
+
+    return validImage || "https://via.placeholder.com/400x300?text=No+Image";
+  };
+
+  const imageUrl = getImageUrl();
 
   return (
     <Link
       className="group relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 transition-all duration-300 hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-700"
-      href={`/venues/${data.id}`}
+      href={`/venues/${data.slug}`}
     >
       {/* Image Container */}
       <div className="relative h-[200px] w-full overflow-hidden">
         <Image
           src={imageUrl}
-          alt={data.name}
+          alt={data.name || "no image"}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
+          onError={() => setImageError(true)}
+          unoptimized={imageUrl.includes("placeholder")}
         />
+
+        {imageError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+            <div className="text-center">
+              <svg
+                className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <p className="text-xs text-gray-400">Image unavailable</p>
+            </div>
+          </div>
+        )}
 
         {/* Premier Venue Badge */}
         <div className="absolute top-2 left-2 bg-white px-2.5 py-1 rounded-md shadow-sm">
@@ -91,7 +185,7 @@ export default function VenueCards({ data, loading = false }: VenueCardsProps) {
         {/* Heart Icon */}
         <span
           className="absolute top-2 right-2 cursor-pointer z-10"
-          onClick={handleFillHeart}
+          onClick={handleToggleFavourite}
         >
           <motion.div
             key={isFilled ? "filled" : "empty"}
@@ -113,9 +207,9 @@ export default function VenueCards({ data, loading = false }: VenueCardsProps) {
       {/* Content Container */}
       <div className="pt-2.5 pb-2 px-2">
         {/* Venue Type */}
-        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-0.5">
+        {/* <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-0.5">
           {data.venue_type}
-        </p>
+        </p> */}
 
         {/* Location & Name */}
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -139,7 +233,7 @@ export default function VenueCards({ data, loading = false }: VenueCardsProps) {
           <div className="text-right">
             <p className="text-sm">
               <span className="font-semibold text-gray-900 dark:text-gray-100">
-                ${data.price_per_hour}
+                {formatCurrency(data.price_per_hour || 0)}
               </span>
               <span className="text-gray-600 dark:text-gray-400 text-xs">
                 {" "}

@@ -7,10 +7,16 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "**",
-        // port: "",
-        // pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
       },
     ],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    unoptimized: false,
   },
 };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { VenueData } from "@/app/components/venues-cards";
 import { useAppContext } from "@/context/appcontext";
 import { useQuery } from "@tanstack/react-query";
 
@@ -77,5 +78,21 @@ export const useVenues = () => {
     });
   };
 
-  return { ListVenues, queryVenues };
+  const GetVenueBySlug = (slug: string) => {
+    return useQuery({
+      queryKey: ["venue", slug],
+      queryFn: async () => {
+        const response = await api.get<{ success: boolean; data: VenueData }>(
+          `/venues/slug/${slug}`
+        );
+        if (!response.data.success) {
+          throw new Error("Failed to fetch venue");
+        }
+        return response.data.data;
+      },
+      enabled: !!slug, // Only run the query if slug is provided
+    });
+  };
+
+  return { ListVenues, queryVenues, GetVenueBySlug };
 };
